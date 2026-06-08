@@ -4,14 +4,15 @@ import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-function requireOwner(labelId: string, userId: number) {
+async function requireOwner(labelId: string, userId: number) {
   return db.prepare('SELECT id FROM labels WHERE id = ? AND user_id = ?').get(labelId, userId);
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser(request);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!requireOwner(params.id, auth.userId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const { id } = await params;
+  if (!(await requireOwner(id, auth.userId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const shares = db.prepare(`
     SELECT ls.id, ls.label_id, ls.shared_with_user_id, u.email, ls.created_at
@@ -19,15 +20,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
     JOIN users u ON ls.shared_with_user_id = u.id
     WHERE ls.label_id = ?
     ORDER BY ls.created_at ASC
-  `).all(params.id);
+  `).all(id);
 
   return NextResponse.json(shares);
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser(request);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!requireOwner(params.id, auth.userId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const { id } = await params;
+  if (!(await requireOwner(id, auth.userId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { email } = await request.json();
   if (!email?.trim()) return NextResponse.json({ error: 'Email required' }, { status: 400 });
@@ -37,7 +39,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   if (targetUser.id === auth.userId) return NextResponse.json({ error: 'Cannot share with yourself' }, { status: 400 });
 
   try {
-    db.prepare('INSERT INTO label_shares (label_id, shared_with_user_id) VALUES (?, ?)').run(params.id, targetUser.id);
+    db.prepare('INSERT INTO label_shares (label_id, shared_with_user_id) VALUES (?, ?)').run(id, targetUser.id);
   } catch {
     return NextResponse.json({ error: 'Already shared with this user' }, { status: 409 });
   }
@@ -45,12 +47,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
   return NextResponse.json({ success: true, email: targetUser.email }, { status: 201 });
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser(request);
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!requireOwner(params.id, auth.userId)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const { id } = await params;
+  if (!(await requireOwner(id, auth.userId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { userId } = await request.json();
-  db.prepare('DELETE FROM label_shares WHERE label_id = ? AND shared_with_user_id = ?').run(params.id, userId);
+  db.prepare('DELETE FROM label_shares WHERE label_id = ? AND shared_with_user_id = ?').run(id, userId);
   return NextResponse.json({ success: true });
 }

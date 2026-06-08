@@ -124,11 +124,9 @@ export default function WishlistApp() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar
-        labels={labels} selectedLabelId={selectedLabelId} user={user}
+      <Sidebar labels={labels} selectedLabelId={selectedLabelId} user={user}
         onSelectLabel={setSelectedLabelId} onAddLabel={() => setShowAddLabel(true)}
-        onDeleteLabel={handleDeleteLabel} onShareLabel={setSharingLabel} onLogout={handleLogout}
-      />
+        onDeleteLabel={handleDeleteLabel} onShareLabel={setSharingLabel} onLogout={handleLogout} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
@@ -159,9 +157,9 @@ export default function WishlistApp() {
         <ItemGrid items={items} loading={loading} currentUserId={user.id}
           onSelectItem={setSelectedItem} onDeleteItem={handleDeleteItem} />
       </div>
-
       {showAddItem && (
-        <AddItemModal labels={ownedLabels} defaultLabelId={selectedLabel?.is_shared === 0 ? selectedLabelId : null}
+        <AddItemModal labels={ownedLabels}
+          defaultLabelId={selectedLabel?.is_shared === 0 ? selectedLabelId : null}
           onAdd={handleAddItem} onClose={() => setShowAddItem(false)} />
       )}
       {showAddLabel && <AddLabelModal onAdd={handleAddLabel} onClose={() => setShowAddLabel(false)} />}

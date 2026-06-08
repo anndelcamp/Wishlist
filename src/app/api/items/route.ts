@@ -45,10 +45,8 @@ export async function GET(request: Request) {
 
     const items = db.prepare(`
       SELECT i.*, ${LABEL_SUBQUERY}
-      FROM items i
-      JOIN item_labels il ON i.id = il.item_id
-      WHERE il.label_id = ?
-      ORDER BY i.created_at DESC
+      FROM items i JOIN item_labels il ON i.id = il.item_id
+      WHERE il.label_id = ? ORDER BY i.created_at DESC
     `).all(labelId);
     return NextResponse.json((items as Record<string, unknown>[]).map(parseItem));
   }
@@ -86,7 +84,6 @@ export async function POST(request: Request) {
   const itemId = result.lastInsertRowid;
 
   if (labelIds?.length) {
-    // Only allow labels the user owns
     const ins = db.prepare('INSERT OR IGNORE INTO item_labels (item_id, label_id) VALUES (?, ?)');
     for (const lid of labelIds) {
       const ok = db.prepare('SELECT id FROM labels WHERE id = ? AND user_id = ?').get(lid, auth.userId);

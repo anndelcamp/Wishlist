@@ -16,22 +16,17 @@ export default function AuthScreen({ onAuth }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'register' && password !== confirm) { setError('Passwords do not match'); return; }
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await fetch(`/api/auth/${mode === 'register' ? 'register' : 'login'}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) setError(data.error || 'Something went wrong');
       else onAuth(data);
-    } catch {
-      setError('Network error, please try again');
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError('Network error, please try again'); }
+    finally { setLoading(false); }
   };
 
   return (
@@ -46,22 +41,17 @@ export default function AuthScreen({ onAuth }: Props) {
           </div>
           <p className="text-gray-400 text-sm">Track what you want. Share with who you care about.</p>
         </div>
-
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="flex border-b">
             {(['login', 'register'] as const).map(m => (
-              <button
-                key={m}
-                onClick={() => { setMode(m); setError(''); }}
+              <button key={m} onClick={() => { setMode(m); setError(''); }}
                 className={`flex-1 py-4 text-sm font-medium transition-colors ${
                   mode === m ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
+                }`}>
                 {m === 'login' ? 'Sign In' : 'Create Account'}
               </button>
             ))}
           </div>
-
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -85,12 +75,9 @@ export default function AuthScreen({ onAuth }: Props) {
             {error && <div className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded-lg">{error}</div>}
             <button type="submit" disabled={loading}
               className="w-full py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-60 transition-colors flex items-center justify-center gap-2">
-              {loading ? (
-                <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>{mode === 'register' ? 'Creating...' : 'Signing in...'}</>
-              ) : mode === 'register' ? 'Create Account' : 'Sign In'}
+              {loading
+                ? <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>{mode === 'register' ? 'Creating...' : 'Signing in...'}</>
+                : mode === 'register' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
         </div>

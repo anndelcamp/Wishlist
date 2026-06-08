@@ -11,7 +11,6 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
-// Create all tables
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +67,6 @@ db.exec(`
   );
 `);
 
-// Safe migrations for existing installs
 [
   'ALTER TABLE labels ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE',
   'ALTER TABLE items ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL',

@@ -66,17 +66,14 @@ export async function scrapeUrl(url: string): Promise<ScrapedItem> {
         '.a-price .a-offscreen',
         '#priceblock_ourprice',
         '#priceblock_dealprice',
-        '.price',
-        '#price',
-        '.product-price',
-        '.offer-price',
+        '.price', '#price', '.product-price', '.offer-price',
         '[class*="price"]',
       ];
       for (const selector of priceSelectors) {
         const el = $(selector).first();
         if (el.length) {
           const content = el.attr('content') || el.attr('data-price') || el.text().trim();
-          if (content && /[\$£€\d]/.test(content) && content.length < 30) {
+          if (content && /[\$\£\€\d]/.test(content) && content.length < 30) {
             price = content.replace(/\s+/g, ' ').trim();
             priceRaw = extractPrice(content);
             break;
@@ -92,15 +89,12 @@ export async function scrapeUrl(url: string): Promise<ScrapedItem> {
         image = image.startsWith('//')
           ? `${base.protocol}${image}`
           : new URL(image, base).href;
-      } catch {
-        image = undefined;
-      }
+      } catch { image = undefined; }
     }
 
     return {
       title: title?.slice(0, 300) || undefined,
-      price,
-      priceRaw,
+      price, priceRaw,
       image: image || undefined,
       description: description?.slice(0, 500) || undefined,
     };

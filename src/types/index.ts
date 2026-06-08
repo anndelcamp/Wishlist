@@ -9,7 +9,7 @@ export interface Label {
   name: string;
   color: string;
   user_id: number;
-  is_shared: number; // 0 = owned, 1 = shared with me
+  is_shared: number;
   created_at: string;
 }
 

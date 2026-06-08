@@ -6,11 +6,12 @@ import ItemCard from './ItemCard';
 interface Props {
   items: Item[];
   loading: boolean;
+  currentUserId: number;
   onSelectItem: (item: Item) => void;
   onDeleteItem: (id: number) => void;
 }
 
-export default function ItemGrid({ items, loading, onSelectItem, onDeleteItem }: Props) {
+export default function ItemGrid({ items, loading, currentUserId, onSelectItem, onDeleteItem }: Props) {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -35,12 +36,10 @@ export default function ItemGrid({ items, loading, onSelectItem, onDeleteItem }:
     <div className="flex-1 overflow-y-auto p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {items.map(item => (
-          <ItemCard
-            key={item.id}
-            item={item}
+          <ItemCard key={item.id} item={item}
+            isOwner={item.user_id === currentUserId || item.user_id === null}
             onClick={() => onSelectItem(item)}
-            onDelete={() => onDeleteItem(item.id)}
-          />
+            onDelete={() => onDeleteItem(item.id)} />
         ))}
       </div>
     </div>

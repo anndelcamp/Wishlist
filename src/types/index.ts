@@ -1,7 +1,15 @@
+export interface User {
+  id: number;
+  email: string;
+  created_at: string;
+}
+
 export interface Label {
   id: number;
   name: string;
   color: string;
+  user_id: number;
+  is_shared: number; // 0 = owned, 1 = shared with me
   created_at: string;
 }
 
@@ -14,6 +22,7 @@ export interface Item {
   price_raw: number | null;
   description: string | null;
   last_price_check: string | null;
+  user_id: number | null;
   created_at: string;
   labels: Label[];
   label_ids: number[];
@@ -22,7 +31,16 @@ export interface Item {
 export interface Comment {
   id: number;
   item_id: number;
+  user_id: number | null;
   user_name: string;
   text: string;
+  created_at: string;
+}
+
+export interface LabelShare {
+  id: number;
+  label_id: number;
+  shared_with_user_id: number;
+  email: string;
   created_at: string;
 }
